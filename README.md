@@ -1,4 +1,4 @@
-# Astra Play
+# PrimeAutoAccept
 
 Плагин для Astra: автоматически принимает найденный матч в League of Legends, Dota 2 и Counter-Strike 2. Только Windows x64.
 

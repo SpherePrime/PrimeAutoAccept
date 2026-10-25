@@ -1,13 +1,13 @@
 [plugin]
-id = "match-autoaccept"
-name = "Astra Play"
+id = "dwertyfa-primeautoaccept"
+name = "PrimeAutoAccept"
 version = "0.1.0"
 description = "Auto-accepts matches in League of Legends, Dota 2 and Counter-Strike 2."
 author = ""
 min_astra_version = "0.2.1"
 
 [entry]
-command = "target/release/astra_play"
+command = "target/release/prime_auto_accept"
 
 [capabilities]
 tools = true
