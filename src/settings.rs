@@ -5,23 +5,17 @@ use crate::game::Game;
 #[astra::config]
 #[derive(Debug, Clone)]
 pub struct Settings {
-    /// Accept League of Legends ready checks
-    #[schemars(title = "League of Legends")]
+    #[schemars(title = "$config.lol.title", description = "$config.lol.description")]
     pub lol: bool,
-    /// Accept Dota 2 matches
-    #[schemars(title = "Dota 2")]
+    #[schemars(title = "$config.dota2.title", description = "$config.dota2.description")]
     pub dota2: bool,
-    /// Accept Counter-Strike 2 matches
-    #[schemars(title = "Counter-Strike 2")]
+    #[schemars(title = "$config.cs2.title", description = "$config.cs2.description")]
     pub cs2: bool,
-    /// Wait this many milliseconds before accepting
-    #[schemars(title = "Accept delay, ms", range(max = 10000))]
+    #[schemars(title = "$config.accept_delay_ms.title", description = "$config.accept_delay_ms.description", range(max = 10000))]
     pub accept_delay_ms: u64,
-    /// Bring Dota 2 or CS2 to the front to press Accept
-    #[schemars(title = "Focus the game window")]
+    #[schemars(title = "$config.focus_game.title", description = "$config.focus_game.description")]
     pub focus_game: bool,
-    /// League of Legends folder, if the client is not found automatically
-    #[schemars(title = "League of Legends folder")]
+    #[schemars(title = "$config.lol_install_dir.title", description = "$config.lol_install_dir.description")]
     pub lol_install_dir: String,
 }
 

@@ -4,19 +4,21 @@ use std::time::{Duration, Instant};
 use astra_plugin_sdk::prelude::*;
 use tokio::task::spawn_blocking;
 
+use crate::capture;
 use crate::detector::{self, Point};
 use crate::game::Game;
 use crate::lcu::{LcuClient, ReadyCheck};
 use crate::process;
 use crate::settings::Settings;
 use crate::state::AcceptState;
+use crate::input;
 use crate::window::{self, GameWindow};
 
 pub const MATCH_FOUND: &str = "match_found";
 pub const MATCH_ACCEPTED: &str = "match_accepted";
 
-const TICK: Duration = Duration::from_millis(500);
-const SCREEN_CONFIRM: Duration = Duration::from_millis(600);
+const TICK: Duration = Duration::from_secs(1);
+const SCREEN_CONFIRM: Duration = Duration::from_millis(900);
 const SCREEN_COOLDOWN: Duration = Duration::from_secs(10);
 
 pub struct Watcher {
@@ -58,13 +60,16 @@ impl Watcher {
     }
 
     pub async fn run(mut self) {
-        spawn_blocking(window::enable_dpi_awareness).await.ok();
+        spawn_blocking(window::prepare_process).await.ok();
         let mut ticker = tokio::time::interval(TICK);
         ticker.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+        let names = Game::ALL.map(Game::process_name);
         loop {
             ticker.tick().await;
-            for game in Game::ALL {
-                let pid = process::find_pid(game.process_name());
+            let pids = spawn_blocking(move || process::find_pids(&names))
+                .await
+                .unwrap_or_default();
+            for (game, pid) in Game::ALL.into_iter().zip(pids) {
                 self.state.set_running(game, pid.is_some());
                 let active = self.state.is_enabled(game);
                 match (game, pid, active) {
@@ -186,14 +191,11 @@ fn press(hit: ButtonHit) {
     hit.window.bring_to_front();
     std::thread::sleep(Duration::from_millis(250));
     let target = locate_button_in(hit.window).unwrap_or(hit.target);
-    window::click_at(target);
+    input::click_at(target);
 }
 
 fn locate_button_in(window: GameWindow) -> Option<Point> {
-    let capture = window.capture()?;
+    let capture = capture::search_area(window)?;
     let point = detector::find_accept_button(&capture.frame)?;
-    Some(Point {
-        x: capture.origin.x + point.x,
-        y: capture.origin.y + point.y,
-    })
+    Some(capture.to_screen(point))
 }

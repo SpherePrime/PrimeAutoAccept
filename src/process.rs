@@ -10,23 +10,30 @@ use windows::Win32::System::Threading::{
 use windows::core::PWSTR;
 
 pub fn find_pid(exe_name: &str) -> Option<u32> {
-    let snapshot = unsafe { CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) }.ok()?;
+    find_pids(&[exe_name])[0]
+}
+
+pub fn find_pids(exe_names: &[&str]) -> Vec<Option<u32>> {
+    let mut found = vec![None; exe_names.len()];
+    let Ok(snapshot) = (unsafe { CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) }) else {
+        return found;
+    };
     let mut entry = PROCESSENTRY32W {
         dwSize: std::mem::size_of::<PROCESSENTRY32W>() as u32,
         ..Default::default()
     };
-    let mut found = None;
     let mut has_entry = unsafe { Process32FirstW(snapshot, &mut entry) }.is_ok();
-    while has_entry {
+    while has_entry && found.iter().any(Option::is_none) {
         let name_len = entry
             .szExeFile
             .iter()
             .position(|&c| c == 0)
             .unwrap_or(entry.szExeFile.len());
         let name = String::from_utf16_lossy(&entry.szExeFile[..name_len]);
-        if name.eq_ignore_ascii_case(exe_name) {
-            found = Some(entry.th32ProcessID);
-            break;
+        for (slot, wanted) in found.iter_mut().zip(exe_names) {
+            if slot.is_none() && name.eq_ignore_ascii_case(wanted) {
+                *slot = Some(entry.th32ProcessID);
+            }
         }
         has_entry = unsafe { Process32NextW(snapshot, &mut entry) }.is_ok();
     }

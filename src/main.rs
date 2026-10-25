@@ -1,5 +1,7 @@
+mod capture;
 mod detector;
 mod game;
+mod input;
 mod lcu;
 mod process;
 mod report;
@@ -21,7 +23,7 @@ const FOUND_ICON: &str = "<svg viewBox='0 0 24 24'><circle cx='12' cy='12' r='8'
 const ACCEPTED_ICON: &str = "<svg viewBox='0 0 24 24'><path d='M5 12.5 10 17l9-10' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>";
 
 #[derive(Default)]
-struct AstraPlay {
+struct PrimeAutoAccept {
     settings: Arc<Config<Settings>>,
     state: Arc<AcceptState>,
 }
@@ -35,30 +37,27 @@ struct Toggle {
 }
 
 #[astra::plugin(capabilities = "tools, triggers")]
-impl AstraPlay {
+impl PrimeAutoAccept {
     /// Show whether match auto-accept is on for League of Legends, Dota 2 and CS2, which of those games are running, and how many matches were accepted.
     #[tool]
-    async fn auto_accept_status(&self) -> Result<String, ToolError> {
-        Ok(report::status(&self.state))
+    async fn auto_accept_status(&self, ctx: &PluginContext) -> Result<String, ToolError> {
+        Ok(report::status(&self.state, ctx.i18n()))
     }
 
     /// Turn match auto-accept on or off for League of Legends, Dota 2, CS2 or all of them until Astra restarts.
     #[tool]
-    async fn set_auto_accept(&self, args: Toggle) -> Result<String, ToolError> {
+    async fn set_auto_accept(&self, ctx: &PluginContext, args: Toggle) -> Result<String, ToolError> {
         let games: Vec<Game> = if args.game.trim().eq_ignore_ascii_case("all") {
             Game::ALL.to_vec()
         } else {
             vec![Game::parse(&args.game).ok_or_else(|| {
-                ToolError::BadArguments(format!(
-                    "unknown game '{}'; use lol, dota2, cs2 or all",
-                    args.game
-                ))
+                ToolError::BadArguments(ctx.i18n().ta("error.unknown_game", &[("game", &args.game)]))
             })?]
         };
         for game in &games {
             self.state.set_enabled(*game, args.enabled);
         }
-        Ok(report::status(&self.state))
+        Ok(report::status(&self.state, ctx.i18n()))
     }
 
     #[hook]
@@ -85,7 +84,7 @@ impl AstraPlay {
     }
 }
 
-astra::main!(AstraPlay::default());
+astra::main!(PrimeAutoAccept::default());
 
 #[cfg(test)]
 mod tests {
@@ -94,14 +93,14 @@ mod tests {
 
     #[tokio::test]
     async fn toggles_and_reports() {
-        let h = Harness::new(AstraPlay::default())
+        let h = Harness::new(PrimeAutoAccept::default())
             .with_config(json!({ "cs2": false }))
             .start()
             .await
             .expect("the plugin started");
 
         let status = h.call_tool("auto_accept_status", json!({})).await.unwrap();
-        assert!(status.contains("Counter-Strike 2: off"), "{status}");
+        assert!(status.contains("Counter-Strike 2: off, not running, 0 matches accepted"), "{status}");
 
         let status = h
             .call_tool("set_auto_accept", json!({ "game": "cs2", "enabled": true }))
