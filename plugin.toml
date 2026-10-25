@@ -1,40 +1,24 @@
 [plugin]
-id = "astra-play"
+id = "match-autoaccept"
 name = "Astra Play"
 version = "0.1.0"
-description = "An Astra plugin"
+description = "Auto-accepts matches in League of Legends, Dota 2 and Counter-Strike 2."
 author = ""
-license = "MIT"
-
-# The generated action and trigger labels are `$keys` the DAEMON resolves.
-# Astra 0.2.1 is the first release that does; an older one would show
-# your users the key instead of the label, so it is refused the install.
-# Delete this line if you replace those keys with literal English.
 min_astra_version = "0.2.1"
 
 [entry]
 command = "target/release/astra_play"
 
-
-
-# `[capabilities]` is what the daemon may call INTO this plugin.
 [capabilities]
-actions = true
+tools = true
 triggers = true
 
-# `[permissions]` is the other direction: which host RPCs the plugin may call
-# out to. Default-deny — a manifest with no `[permissions]` section may call
-# nothing beyond Register, PluginLog and GetPluginSelfConfig, so declaring a
-# capability above is not what lets the matching host call through. This is.
-#
-# `reason` is shown to the user at install time and is the entire basis of
-# their consent. Rewrite these to say what YOUR plugin does with the call, and
-# delete any line you do not actually need.
 [permissions]
-fire_trigger = { reason = "Fires the triggers this plugin declares, so your commands can react to them" }
+fire_trigger = { reason = "Starts your automations when a match is found or accepted." }
 
-# Uncomment only what you call, and say why:
-# set_variable = { reason = "…" }   # write a variable your commands can read
-# push_to_ui = { reason = "…" }   # push updates to a UI panel this plugin contributes
-# set_theme_contribution = { reason = "…" }   # repaint the active theme (high risk: its own consent checkbox)
-# dom_access = { reason = "…" }   # reach into the Astra window's DOM (high risk: refused to a sideloaded bundle)
+[platform]
+os = ["windows"]
+arch = ["x86_64"]
+
+[config]
+schema = "{\"title\":\"Settings\",\"type\":\"object\",\"properties\":{\"accept_delay_ms\":{\"title\":\"Accept delay, ms\",\"description\":\"Wait this many milliseconds before accepting\",\"type\":\"integer\",\"format\":\"uint64\",\"default\":1500,\"maximum\":10000,\"minimum\":0},\"cs2\":{\"title\":\"Counter-Strike 2\",\"description\":\"Accept Counter-Strike 2 matches\",\"type\":\"boolean\",\"default\":true},\"dota2\":{\"title\":\"Dota 2\",\"description\":\"Accept Dota 2 matches\",\"type\":\"boolean\",\"default\":true},\"focus_game\":{\"title\":\"Focus the game window\",\"description\":\"Bring Dota 2 or CS2 to the front to press Accept\",\"type\":\"boolean\",\"default\":true},\"lol\":{\"title\":\"League of Legends\",\"description\":\"Accept League of Legends ready checks\",\"type\":\"boolean\",\"default\":true},\"lol_install_dir\":{\"title\":\"League of Legends folder\",\"description\":\"League of Legends folder, if the client is not found automatically\",\"type\":\"string\",\"default\":\"\"}}}"

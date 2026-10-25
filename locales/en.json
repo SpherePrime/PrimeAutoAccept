@@ -1,8 +1,6 @@
 {
   "listing.name": "Astra Play",
-  "listing.description": "An Astra plugin",
-  "action.do_something.label": "Do Something",
-  "trigger.something_happened.label": "Something Happened",
-  "msg.done.one": "Handled {n} item",
-  "msg.done.other": "Handled {n} items"
+  "listing.description": "Auto-accepts matches in League of Legends, Dota 2 and Counter-Strike 2.",
+  "trigger.match_found.label": "Match found",
+  "trigger.match_accepted.label": "Match accepted"
 }
