@@ -1,5 +1,12 @@
 {
+  "locales": {
+    "ru": {
+      "listing.description": "35bf0ad95a35",
+      "listing.name": "4443521667ef",
+      "trigger.match_accepted.label": "8ea194b4d9bd",
+      "trigger.match_found.label": "6cea4e2f85f4"
+    }
+  },
   "schema": "astra.plugin.locales/1",
-  "source": "en",
-  "locales": {}
+  "source": "en"
 }

@@ -1,40 +1,55 @@
 # Astra Play
 
-An Astra plugin providing: actions, triggers.
+Плагин для Astra: автоматически принимает найденный матч в League of Legends, Dota 2 и Counter-Strike 2. Только Windows x64.
 
-## Development
+## Как работает
 
-Language: rust
+| Игра | Способ |
+|---|---|
+| League of Legends | Локальный API клиента (LCU): читает `lockfile`, при `ready-check` вызывает `POST /lol-matchmaking/v1/ready-check/accept`. Окно не трогает. |
+| Dota 2, CS2 | API для принятия нет. Раз в 0,5 с снимает окно игры, ищет зелёную кнопку «Принять» в центре, подтверждает её на нескольких кадрах и кликает. Курсор возвращается на место. |
 
-```bash
-astra-plugin dev .
+Задержка перед принятием настраивается: за это время можно отклонить матч вручную.
+
+Для Dota 2 и CS2:
+- окно игры не должно быть свёрнуто;
+- если игра не на переднем плане, плагин выводит её вперёд («Выводить окно игры»). Без этой опции принимает только когда игра активна;
+- в эксклюзивном полноэкранном режиме снимок фонового окна может быть пустым — используйте «Полноэкранный в окне» или держите игру активной.
+
+## Настройки
+
+- League of Legends / Dota 2 / Counter-Strike 2 — включить автоприём для игры.
+- Задержка, мс — пауза перед принятием (0–10000, по умолчанию 1500).
+- Выводить окно игры — для Dota 2 и CS2.
+- Папка League of Legends — если клиент не найден автоматически.
+
+## Инструменты ассистента
+
+- `auto_accept_status` — что включено, какие игры запущены, сколько матчей принято.
+- `set_auto_accept` — включить или выключить автоприём (`lol`, `dota2`, `cs2`, `all`) до перезапуска.
+
+## Триггеры автоматизаций
+
+- `match_found` — матч найден.
+- `match_accepted` — матч принят.
+
+Payload: `{"game": "lol" | "dota2" | "cs2", "title": "..."}`.
+
+## Сборка и проверка
+
+```
+cargo build --release
+cargo test
+astra-plugin check . --strict
+astra-plugin test .
 ```
 
-## Build
+## Структура
 
-```bash
-astra-plugin build
-```
-
-This produces a `.astraplugin` file for distribution.
-
-## How this file is used
-
-When this plugin is listed, Astra's store shows this README on the plugin's
-page — so what you write here is what someone reads while deciding whether to
-install it. `icon.svg` next to `plugin.toml` becomes the store card's picture;
-replace it with your own.
-
-Screenshots work, and are the reason to add any:
-
-```markdown
-![The command editor, mid-roll](docs/screenshot.png)
-```
-
-Commit the images to this repository and link them with a **relative path**.
-The registry rewrites those to point at the exact commit your release was built
-from, so a picture cannot change after somebody approved the listing. Images
-hosted anywhere but GitHub are dropped rather than rendered — a remote image is
-a request from the user's machine, made before they have installed anything.
-
-Raw HTML is stripped, so use markdown for layout.
+- `src/main.rs` — плагин: инструменты, триггеры, хуки.
+- `src/watcher.rs` — фоновый цикл по играм.
+- `src/lcu.rs` — клиент League of Legends.
+- `src/detector.rs` — поиск кнопки «Принять» на кадре.
+- `src/window.rs` — окно игры: снимок, фокус, клик.
+- `src/process.rs` — поиск процессов.
+- `src/settings.rs`, `src/state.rs`, `src/report.rs`, `src/game.rs`.

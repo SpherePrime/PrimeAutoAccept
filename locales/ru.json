@@ -1,0 +1,6 @@
+{
+  "listing.description": "Автоматически принимает матчи в League of Legends, Dota 2 и Counter-Strike 2.",
+  "listing.name": "Astra Play",
+  "trigger.match_accepted.label": "Матч принят",
+  "trigger.match_found.label": "Матч найден"
+}
