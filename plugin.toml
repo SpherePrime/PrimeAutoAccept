@@ -3,7 +3,8 @@ id = "dwertyfa-primeautoaccept"
 name = "PrimeAutoAccept"
 version = "0.1.0"
 description = "Auto-accepts matches in League of Legends, Dota 2 and Counter-Strike 2."
-author = ""
+author = "dwertyfa"
+license = "MIT"
 min_astra_version = "0.2.1"
 
 [entry]

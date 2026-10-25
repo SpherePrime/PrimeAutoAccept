@@ -2,12 +2,14 @@
 name = "prime_auto_accept"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+repository = "https://github.com/SpherePrime/PrimeAutoAccept"
 
 [dependencies]
 astra-plugin-sdk = "0.7"
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
 
-[dependencies.windows]
+[target.'cfg(windows)'.dependencies.windows]
 version = "0.58"
 features = [
     "Win32_Foundation",

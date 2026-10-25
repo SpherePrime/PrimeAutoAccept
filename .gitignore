@@ -1,4 +1,3 @@
-# Build artifacts
 *.astraplugin
-
 target/
+CHATS.md

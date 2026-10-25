@@ -63,3 +63,7 @@ astra-plugin test .
 - `src/input.rs` — клик и нажатие клавиш.
 - `src/process.rs` — поиск процессов.
 - `src/settings.rs`, `src/state.rs`, `src/report.rs`, `src/game.rs`.
+
+## Лицензия
+
+MIT, см. `LICENSE`.

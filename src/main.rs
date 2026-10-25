@@ -1,13 +1,20 @@
+#[cfg(windows)]
 mod capture;
 mod detector;
 mod game;
+#[cfg(windows)]
 mod input;
+#[cfg(windows)]
 mod lcu;
+#[cfg(windows)]
 mod process;
 mod report;
 mod settings;
 mod state;
+mod triggers;
+#[cfg(windows)]
 mod watcher;
+#[cfg(windows)]
 mod window;
 
 use std::sync::Arc;
@@ -17,10 +24,6 @@ use astra_plugin_sdk::prelude::*;
 use game::Game;
 use settings::Settings;
 use state::AcceptState;
-use watcher::{MATCH_ACCEPTED, MATCH_FOUND, Watcher};
-
-const FOUND_ICON: &str = "<svg viewBox='0 0 24 24'><circle cx='12' cy='12' r='8' fill='none' stroke='currentColor' stroke-width='2'/><path d='M12 7v5l3 2' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg>";
-const ACCEPTED_ICON: &str = "<svg viewBox='0 0 24 24'><path d='M5 12.5 10 17l9-10' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>";
 
 #[derive(Default)]
 struct PrimeAutoAccept {
@@ -62,11 +65,7 @@ impl PrimeAutoAccept {
 
     #[hook]
     async fn trigger_types(&self) -> Vec<TriggerTypeDef> {
-        vec![
-            TriggerTypeDef::new(MATCH_FOUND, key("trigger.match_found.label")).with_icon_svg(FOUND_ICON),
-            TriggerTypeDef::new(MATCH_ACCEPTED, key("trigger.match_accepted.label"))
-                .with_icon_svg(ACCEPTED_ICON),
-        ]
+        triggers::definitions()
     }
 
     #[hook]
@@ -78,8 +77,12 @@ impl PrimeAutoAccept {
     #[hook]
     async fn on_start(&self, ctx: &PluginContext) -> anyhow::Result<()> {
         self.state.apply_settings(&self.settings.load());
-        let watcher = Watcher::new(ctx.clone(), self.settings.clone(), self.state.clone());
-        tokio::spawn(watcher.run());
+        #[cfg(windows)]
+        tokio::spawn(
+            watcher::Watcher::new(ctx.clone(), self.settings.clone(), self.state.clone()).run(),
+        );
+        #[cfg(not(windows))]
+        let _ = ctx;
         Ok(())
     }
 }

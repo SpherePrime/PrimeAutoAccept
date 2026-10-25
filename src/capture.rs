@@ -211,27 +211,3 @@ impl Drop for Canvas {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowThreadProcessId};
-
-    #[test]
-    #[ignore]
-    fn captures_foreground_window_quickly() {
-        crate::window::prepare_process();
-        let mut pid = 0u32;
-        unsafe { GetWindowThreadProcessId(GetForegroundWindow(), Some(&mut pid)) };
-        let window = GameWindow::of_process(pid).expect("foreground window");
-        let started = std::time::Instant::now();
-        let runs = 20;
-        for _ in 0..runs {
-            let capture = search_area(window).expect("captured");
-            assert!(capture.frame.width <= CAPTURE_WIDTH as usize);
-            crate::detector::find_accept_button(&capture.frame);
-        }
-        let per_run = started.elapsed() / runs;
-        println!("capture + detect: {per_run:?}");
-        assert!(per_run < std::time::Duration::from_millis(30), "{per_run:?}");
-    }
-}

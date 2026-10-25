@@ -11,11 +11,9 @@ use crate::lcu::{LcuClient, ReadyCheck};
 use crate::process;
 use crate::settings::Settings;
 use crate::state::AcceptState;
+use crate::triggers::{MATCH_ACCEPTED, MATCH_FOUND};
 use crate::input;
 use crate::window::{self, GameWindow};
-
-pub const MATCH_FOUND: &str = "match_found";
-pub const MATCH_ACCEPTED: &str = "match_accepted";
 
 const TICK: Duration = Duration::from_secs(1);
 const SCREEN_CONFIRM: Duration = Duration::from_millis(900);
