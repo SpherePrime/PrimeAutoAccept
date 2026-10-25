@@ -1,0 +1,8 @@
+{
+  "listing.name": "Astra Play",
+  "listing.description": "An Astra plugin",
+  "action.do_something.label": "Do Something",
+  "trigger.something_happened.label": "Something Happened",
+  "msg.done.one": "Handled {n} item",
+  "msg.done.other": "Handled {n} items"
+}
